@@ -19,79 +19,52 @@ export default defineConfig({
         scope: '/',
         start_url: '/',
         icons: [
+          // GARANTA que estes arquivos realmente existam em /public e sejam pequenos (<100 KB)
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
-        ],
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+        ]
       },
       workbox: {
-        // evita que o SW faça fallback para index.html em erros de rede
-        navigateFallback: null,
-        cleanupOutdatedCaches: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // ↑ aumenta o limite de pré-cache (opcional, ajuda em assets um pouco maiores)
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+
+        // padrões de arquivos a incluir na varredura
+        globPatterns: ['**/*.{js,css,html,ico,svg,png,webp}'],
+
+        // ↑ tenta ignorar explicitamente ícones problemáticos (caso existam no /public)
+        globIgnores: ['**/icon-192x192.png', '**/icon-512x512.png'],
+
+        // ↑ remove entradas específicas do manifesto de pré-cache (fallback robusto)
+        manifestTransforms: [
+          async (entries) => {
+            const blocked = [/icon-192x192\.png$/i, /icon-512x512\.png$/i];
+            const manifest = entries.filter(e => !blocked.some(r => r.test(e.url)));
+            return { manifest };
+          }
+        ],
+
+        // Caching de fontes (como você já tinha)
         runtimeCaching: [
-          // ===== NÃO INTERCEPTAR/CACHEAR Firebase Auth (PRODUÇÃO) =====
-          {
-            urlPattern: /^https:\/\/identitytoolkit\.googleapis\.com\/.*$/i,
-            handler: 'NetworkOnly',
-            method: 'GET',
-          },
-          {
-            urlPattern: /^https:\/\/identitytoolkit\.googleapis\.com\/.*$/i,
-            handler: 'NetworkOnly',
-            method: 'POST',
-          },
-          {
-            urlPattern: /^https:\/\/securetoken\.googleapis\.com\/.*$/i,
-            handler: 'NetworkOnly',
-            method: 'GET',
-          },
-          {
-            urlPattern: /^https:\/\/securetoken\.googleapis\.com\/.*$/i,
-            handler: 'NetworkOnly',
-            method: 'POST',
-          },
-
-          // ===== NÃO INTERCEPTAR/CACHEAR Firebase Auth (EMULADOR) =====
-          {
-            urlPattern: /^http:\/\/(?:localhost|127\.0\.0\.1):9099\/identitytoolkit\.googleapis\.com\/.*$/i,
-            handler: 'NetworkOnly',
-          },
-          {
-            urlPattern: /^http:\/\/(?:localhost|127\.0\.0\.1):9099\/securetoken\.googleapis\.com\/.*$/i,
-            handler: 'NetworkOnly',
-          },
-
-          // ===== Fonts CSS (googleapis) – StaleWhileRevalidate =====
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
+            handler: 'CacheFirst',
             options: {
-              cacheName: 'google-fonts-stylesheets',
-              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
+              cacheName: 'google-fonts-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }
+            }
           },
-
-          // ===== Fonts binárias (gstatic) – CacheFirst =====
           {
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'google-fonts-webfonts',
-              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-        ],
-      },
-      // atualiza clientes imediatamente após instalar novo SW
-      devOptions: {
-        // habilite se quiser testar PWA em dev; pode deixar comentado
-        enabled: false,
-      },
-      // garante que o novo SW assuma controle mais rápido
-      injectRegister: 'auto',
-      // registerWebManifestInRouteRules: true,
-    }),
+              cacheName: 'gstatic-fonts-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }
+            }
+          }
+        ]
+      }
+    })
   ],
   optimizeDeps: {
     exclude: ['lucide-react'],
