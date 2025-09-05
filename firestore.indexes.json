@@ -1,0 +1,57 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "agendas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "dataStr",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "modalidade_n",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "agendas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "dataStr",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "local_n",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "agendas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "dataStr",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "policial_n",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "agendas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "startsAt",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
