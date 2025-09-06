@@ -36,7 +36,7 @@ export const useAuth = (): AuthState => {
           let userRole = (tokenResult.claims.role as UserRole) || 'pm';
 
           // ✅ Override local: este e-mail SEMPRE terá role 'sad'
-          if (user.email?.toLowerCase() === 'macmarypm@gmail.com') {
+          if (user.email?.toLowerCase() === 'sadcpe@gmail.com') {
             userRole = 'sad';
           }
 
